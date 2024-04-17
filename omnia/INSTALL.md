@@ -43,7 +43,7 @@ MCU firmware can be tested with `omnia-mcutool -v`. If the command doesn't fail,
 Bootloader version can be read from the output of `strings /dev/mtd0 | grep U-Boot`. If you see `U-Boot SPL 2022.10` or newer, you're good.
 
 Now, configure the LAN. Go to https://192.168.1.1/reforis/network-settings/lan and change "Router IP address" to 192.168.2.1 (or any other value you want).
-Change "DHCP start" to 192.168.2.10 (or anything other that you desire) and "DHCP max leases" to 240 (beware that the start + max has to sum to a number lower than 255).
+Change "DHCP start" to 192.168.2.60 (or anything other that you desire) and "DHCP max leases" to 194 (beware that the start + max has to sum to a number lower than 255).
 Unplug the LAN cable, wait for 5 seconds and plug it back. Go to https://192.168.2.1 to check the LAN IP change has been successful. It might happen the browser
 won't be able to connect. In such case, SSH to the router with `ssh root@192.168.2.1` (this should work) and call `/etc/init.d/lighttpd restart`.
 
@@ -79,4 +79,8 @@ Go over to https://192.168.2.1/cgi-bin/luci/admin/network/wireless and configure
 In General setup, change Mode to Client and enter the SSID. In Network, choose `wwan` and `wwan6`. On Wireless security tab, configure the authentication. Click Save and then Save & Apply.
 You should also remove the default-generated SSIDs called "Turris" or "?". Save & apply.
 
+Go to https://192.168.2.1/cgi-bin/luci/admin/network/network, edit 'lan' interface, "DHCP server", set Lease time to 345600.
+
 Go to https://192.168.2.1/cgi-bin/luci/admin/network/network again, click Edit next to "wan" and set gateway metric to 100. Save & apply.
+
+SSH to the router and call: 'uci set dhcp.@dnsmasq[0].leasefile=/srv/dhcp.leases && uci commit'.
