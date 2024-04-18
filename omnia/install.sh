@@ -270,7 +270,7 @@ function uci_config() {
 	fi
 	
 	local ans
-	IFS= ans=$(answer "$(uci changes)\nPerform the above changes to uci config? [Y/n]? " "y" "$force_uci_commit")
+	IFS= ans=$(answer "The following UCI changes are proposed:\n$(uci changes)\nPerform the above changes to UCI config? [Y/n]? " "y" "$force_uci_commit")
 	if [ "$ans" = "y" ]; then
 		uci commit
 	fi
