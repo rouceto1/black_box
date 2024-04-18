@@ -199,7 +199,7 @@ function uci_config() {
 	[ -n "$cfg" ] && uci set "wireless.${cfg}.mode=sta"
 	[ -n "$cfg" ] && uci set "wireless.${cfg}.network=wwan wwan6"
 	
-	uci set network.lan.ipaddr="${ROUTER_IP}/${DHCP_SUBNET_SIZE}"
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list network lan ipaddr "${ROUTER_IP}/${DHCP_SUBNET_SIZE}"
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list network br_lan ports usb0
 
 	uci set network.wan.metric=100
