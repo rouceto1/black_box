@@ -306,6 +306,8 @@ function uci_config() {
 	  uci set firewall.nat6.reload=1
 	fi
 	
+	uci set luci.main.lang=en
+	
 	local ans
 	if [ -z "$(uci changes)" ]; then
 		ans="n"
