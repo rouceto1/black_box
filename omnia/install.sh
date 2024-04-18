@@ -314,3 +314,5 @@ function uci_config() {
 [ "$skip_modify" != "1" ] && modify_files
 
 [ "$skip_uci" != "1" ] && uci_config
+
+echo "It is suggested to reboot the router after the update."
