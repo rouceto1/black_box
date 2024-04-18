@@ -134,7 +134,11 @@ function config_packages() {
 	uci set pkglists.firmware_update.factory=1
 	
 	local ans
-	IFS= ans=$(answer "The following UCI changes are proposed:\n$(uci changes)\nPerform the above changes to UCI config? [Y/n]? " "y" "$force_uci_commit")
+	if [ -z "$(uci changes)" ]; then
+		ans="n"
+	else
+		IFS= ans=$(answer "The following UCI changes are proposed:\n$(uci changes)\nPerform the above changes to UCI config? [Y/n]? " "y" "$force_uci_commit")
+	fi
 	if [ "$ans" = "y" ]; then
 		uci commit
 	fi
@@ -281,7 +285,11 @@ function uci_config() {
 	fi
 	
 	local ans
-	IFS= ans=$(answer "The following UCI changes are proposed:\n$(uci changes)\nPerform the above changes to UCI config? [Y/n]? " "y" "$force_uci_commit")
+	if [ -z "$(uci changes)" ]; then
+		ans="n"
+	else
+		IFS= ans=$(answer "The following UCI changes are proposed:\n$(uci changes)\nPerform the above changes to UCI config? [Y/n]? " "y" "$force_uci_commit")
+	fi
 	if [ "$ans" = "y" ]; then
 		uci commit
 	fi
