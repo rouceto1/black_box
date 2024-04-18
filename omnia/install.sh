@@ -158,7 +158,7 @@ function uci_config() {
 	
 	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option wireless wifi-iface device radio2)"
 	[ -n "$cfg" ] && uci set "wireless.${cfg}.mode=sta"
-	[ -n "$cfg" ] && uci set "wireless.${cfg}.network='wwan wwan6'"
+	[ -n "$cfg" ] && uci set "wireless.${cfg}.network=wwan wwan6"
 	
 	uci set network.lan.ipaddr="${ROUTER_IP}/${DHCP_SUBNET_SIZE}"
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list network br_lan ports usb0
@@ -195,7 +195,7 @@ function uci_config() {
 	uci set network.wg0.peerdns=0
 	uci set network.wg0.defaultroute=0
 	uci set network.wg0.private_key="$WIREGUARD_LOCAL_PRIVATE_KEY"
-	"${SCRIPT_DIR}"/uci_ensure_value_in_list network wg0 addresses "WIREGUARD_LOCAL_IP"
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list network wg0 addresses "$WIREGUARD_LOCAL_IP"
 	
 	! uci -q get network.@wireguard_wg0[0] >/dev/null && uci add network wireguard_wg0
 	uci set network.@wireguard_wg0[0].description="$WIREGUARD_REMOTE_DESCRIPTION"
@@ -204,7 +204,7 @@ function uci_config() {
 	uci set network.@wireguard_wg0[0].route_allowed_ips=1
 	uci set network.@wireguard_wg0[0].persistent_keepalive=20
 	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option network wireguard_wg0 description "$WIREGUARD_REMOTE_DESCRIPTION")"
-	"${SCRIPT_DIR}"/uci_ensure_value_in_list network "$cfg" allowed_ips "WIREGUARD_REMOTE_ALLOWED_IPS"
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list network "$cfg" allowed_ips "$WIREGUARD_REMOTE_ALLOWED_IPS"
 	
 	uci set resolver.common.dynamic_domains=1
 	uci set dhcp.lan.start="$DHCP_START"
@@ -215,17 +215,17 @@ function uci_config() {
 	
 	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option dhcp host name septentrio)"
 	[ -z "$cfg" ] && cfg="$(uci add dhcp host)"
-	uci set "dhcp.${cfg}.mac='${SEPTENTRIO_MAC}'"
-	uci set "dhcp.${cfg}.ip='${SEPTENTRIO_IP}'"
+	uci set "dhcp.${cfg}.mac=${SEPTENTRIO_MAC}"
+	uci set "dhcp.${cfg}.ip=${SEPTENTRIO_IP}"
 	uci set "dhcp.${cfg}.dns=1"
 	uci set "dhcp.${cfg}.name=septentrio"
 	
 	bullet_name="${HOSTNAME}-bullet"
 	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option dhcp host name "$bullet_name")"
 	[ -z "$cfg" ] && cfg="$(uci add dhcp host)"
-	uci set "dhcp.${cfg}.mac='${BULLET_MAC}'"
-	uci set "dhcp.${cfg}.ip='${BULLET_IP}'"
-	uci set "dhcp.${cfg}.name='${bullet_name}'"
+	uci set "dhcp.${cfg}.mac=${BULLET_MAC}"
+	uci set "dhcp.${cfg}.ip=${BULLET_IP}"
+	uci set "dhcp.${cfg}.name=${bullet_name}"
 
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list system ntp server "$NTP_SERVER"
 	
@@ -270,7 +270,7 @@ function uci_config() {
 	fi
 	
 	local ans
-	IFS= ans=$(answer "Perform the following changes to uci config? [Y/n]? $(uci changes)" "y" "$force_uci_commit")
+	IFS= ans=$(answer "$(uci changes)\nPerform the above changes to uci config? [Y/n]? " "y" "$force_uci_commit")
 	if [ "$ans" = "y" ]; then
 		uci commit
 	fi
