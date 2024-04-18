@@ -1,0 +1,3 @@
+iptables-save -t nat \
+| sed -e "/\s[DS]NAT\s/d;/\s--match-set\s\S*/s//\06/" \
+| ip6tables-restore -T nat

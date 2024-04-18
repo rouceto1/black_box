@@ -1,0 +1,6 @@
+
+config vnstat
+        list interface 'eth2'
+        list interface 'wg0'
+        list interface 'wwan0'
+        list interface 'wlan2'

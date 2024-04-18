@@ -1,0 +1,10 @@
+#!/bin/bash
+
+remote="$1"
+url="$2"
+
+if [[ "$url" == *"git@"* ]]; then
+	echo "If push via SSH is not configured, use 'git-push-user' instead of 'git push origin master'" >&2
+fi
+
+exit 0
