@@ -274,7 +274,6 @@ function uci_config() {
 	if [ "$ans" = "y" ]; then
 		uci commit
 	fi
-	uci commit
 }
 
 install_files
