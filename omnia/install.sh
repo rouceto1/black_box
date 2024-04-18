@@ -295,10 +295,10 @@ function uci_config() {
 	fi
 }
 
-config_packages
+[ "$skip_packages" != "1" ] && config_packages
 
-install_files
+[ "$skip_install" != "1" ] && install_files
 
-modify_files
+[ "$skip_modify" != "1" ] && modify_files
 
-uci_config
+[ "$skip_uci" != "1" ] && uci_config
