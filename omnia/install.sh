@@ -148,8 +148,10 @@ function config_packages() {
 	if [ "$ans" = "y" ]; then
 		uci commit
 	fi
-	
-	echo "Updating system"
+}
+
+function update() {
+	echo "-- UPDATING SYSTEM --"
 	opkg update && pkgupdate
 }
 
@@ -304,6 +306,8 @@ function uci_config() {
 }
 
 [ "$skip_packages" != "1" ] && config_packages
+
+[ "$skip_update" != "1" ] && update
 
 [ "$skip_install" != "1" ] && install_files
 
