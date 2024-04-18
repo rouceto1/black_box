@@ -56,6 +56,8 @@ function make_sure_no_local_changes() {
 }
 
 function install_files() {
+	echo "-- INSTALLING FILES --"
+
   local dir="${SCRIPT_DIR}"/files
   pushd "$dir" 1>/dev/null
 	find -- * -print | while IFS= read -r f; do
@@ -88,7 +90,9 @@ function install_files() {
 }
 
 function modify_files() {
-	# Set bash as the default shell for root
+	echo "-- MODIFYING FILES --"
+  
+  # Set bash as the default shell for root
   sed -i 's#root:x:0:0:root:/root:/bin/ash#root:x:0:0:root:/root:/bin/bash#' /etc/passwd
   
   sed -i 's#^.*DatabaseDir.*$#DatabaseDir "/srv/vnstat"#' /etc/vnstat.conf
@@ -119,6 +123,8 @@ function uci_get_anonymous_section_with_option() {
 }
 
 function config_packages() {
+	echo "-- CONFIGURING PACKAGE LISTS --"
+
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist datacollect
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist luci_controls
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist lxc
@@ -148,6 +154,8 @@ function config_packages() {
 }
 
 function uci_config() {
+	echo "-- APPLYING UCI CONFIG --"
+
 	local cfg
 
 	uci set system.@system[0].hostname="$HOSTNAME"
