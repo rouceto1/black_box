@@ -118,6 +118,31 @@ function uci_get_anonymous_section_with_option() {
 	return "$cfg"
 }
 
+function config_packages() {
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist datacollect
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist luci_controls
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist lxc
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist net_monitoring
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist firmware_update
+	
+	uci set pkglists.datacollect.dynfw=1
+	uci set pkglists.luci_controls.wireguard=1
+	uci set pkglists.net_monitoring.librespeed=1
+	uci set pkglists.net_monitoring.dev_detect=1
+	uci set pkglists.firmware_update.mcu=1
+	uci set pkglists.firmware_update.nor=1
+	uci set pkglists.firmware_update.factory=1
+	
+	local ans
+	IFS= ans=$(answer "The following UCI changes are proposed:\n$(uci changes)\nPerform the above changes to UCI config? [Y/n]? " "y" "$force_uci_commit")
+	if [ "$ans" = "y" ]; then
+		uci commit
+	fi
+	
+	echo "Updating system"
+	opkg update && pkgupdate
+}
+
 function uci_config() {
 	local cfg
 
@@ -229,20 +254,6 @@ function uci_config() {
 
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list system ntp server "$NTP_SERVER"
 	
-	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist datacollect
-	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist luci_controls
-	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist lxc
-	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist net_monitoring
-	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist firmware_update
-	
-	uci set pkglists.datacollect.dynfw=1
-	uci set pkglists.luci_controls.wireguard=1
-	uci set pkglists.net_monitoring.librespeed=1
-	uci set pkglists.net_monitoring.dev_detect=1
-	uci set pkglists.firmware_update.mcu=1
-	uci set pkglists.firmware_update.nor=1
-	uci set pkglists.firmware_update.factory=1
-	
 	! uci -q get rainbow.wlan_1 >/dev/null && uci set rainbow.wlan_1=led
 	uci set rainbow.wlan_1.status=auto
 	uci set rainbow.wlan_1.color=FF3300
@@ -276,10 +287,10 @@ function uci_config() {
 	fi
 }
 
+config_packages
+
 install_files
 
 modify_files
 
 uci_config
-
-opkg update && pkgupdate
