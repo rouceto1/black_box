@@ -7,10 +7,6 @@ source "${SCRIPT_DIR}"/default-config.bash
 # Create the local-config.bash file to override the default config value
 [ -f "${SCRIPT_DIR}"/local-config.bash ] && source "${SCRIPT_DIR}"/local-config.bash
 
-interactive() {
-  [ -n "$PS1" ]
-}
-
 answer() {
   # answer <question> <default> <override> <success>
   local question="$1"
@@ -24,7 +20,7 @@ answer() {
     echo "${question} Selected value '${ans}' from override" 1>&2
   fi
 
-  if [ ! "${ans}" ] && interactive && [ "${silent}" != 'y' ]; then
+  if [ ! "${ans}" ] && [ -n "$PS1" ] && [ "${silent}" != 'y' ]; then
     read -rep "$(echo -e "${question}")" ans
     echo "Selected value '${ans}' from user input" 1>&2
   fi
@@ -77,7 +73,7 @@ function install_files() {
 			if [[ $f = *.j2 ]]; then
 				f_local="{f_local%.j2}"
 				f="/tmp/$(basename "${f%.j2}")"
-				if ! ./render_jinja <"$f_orig" >"$f"; then
+				if ! "${SCRIPT_DIR}"/render_jinja <"$f_orig" >"$f"; then
 					echo "Failed to render template $f_orig ." >&2
 					continue
 				fi
@@ -115,7 +111,7 @@ function uci_get_anonymous_section_with_option() {
 	local option="$3"
 	local value="$4"
 	
-	local cfg="$(./uci_get_anonymous_section_with_option "$config" "$section_type" "$option" "$value")"
+	local cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option "$config" "$section_type" "$option" "$value")"
 	if [ -z "$cfg" ]; then
 		cfg="$(uci add "$config" "$section_type")"
 		uci set "${config}.${cfg}.${option}=$value"
@@ -162,12 +158,12 @@ function uci_config() {
 	uci set wireless.radio2.country="$WIFI_COUNTRY"
 	uci set wireless.radio2.channel=auto
 	
-	cfg="$(./uci_get_anonymous_section_with_option wireless wifi-iface device radio2)"
+	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option wireless wifi-iface device radio2)"
 	[ -n "$cfg" ] && uci set "wireless.${cfg}.mode=sta"
 	[ -n "$cfg" ] && uci set "wireless.${cfg}.network='wwan wwan6'"
 	
 	uci set network.lan.ipaddr="${ROUTER_IP}/${DHCP_SUBNET_SIZE}"
-	./uci_ensure_value_in_list network br_lan ports usb0
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list network br_lan ports usb0
 
 	uci set network.wan.metric=100
 	uci set network.wan6.metric=100
@@ -201,7 +197,7 @@ function uci_config() {
 	uci set network.wg0.peerdns=0
 	uci set network.wg0.defaultroute=0
 	uci set network.wg0.private_key="$WIREGUARD_LOCAL_PRIVATE_KEY"
-	./uci_ensure_value_in_list network wg0 addresses "WIREGUARD_LOCAL_IP"
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list network wg0 addresses "WIREGUARD_LOCAL_IP"
 	
 	! uci -q get network.@wireguard_wg0[0] >/dev/null && uci add network wireguard_wg0
 	uci set network.@wireguard_wg0[0].description="$WIREGUARD_REMOTE_DESCRIPTION"
@@ -209,17 +205,17 @@ function uci_config() {
 	uci set network.@wireguard_wg0[0].endpoint_host="$WIREGUARD_REMOTE_IP"
 	uci set network.@wireguard_wg0[0].route_allowed_ips=1
 	uci set network.@wireguard_wg0[0].persistent_keepalive=20
-	cfg="$(./uci_get_anonymous_section_with_option network wireguard_wg0 description "$WIREGUARD_REMOTE_DESCRIPTION")"
-	./uci_ensure_value_in_list network "$cfg" allowed_ips "WIREGUARD_REMOTE_ALLOWED_IPS"
+	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option network wireguard_wg0 description "$WIREGUARD_REMOTE_DESCRIPTION")"
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list network "$cfg" allowed_ips "WIREGUARD_REMOTE_ALLOWED_IPS"
 	
 	uci set resolver.common.dynamic_domains=1
 	uci set dhcp.lan.start="$DHCP_START"
 	uci set dhcp.lan.limit="$DHCP_LIMIT"
 	uci set dhcp.lan.leasetime="$DHCP_LEASE_TIME"
-	./uci_ensure_value_in_list dhcp lan dhcp_option "6,$ROUTER_IP"
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list dhcp lan dhcp_option "6,$ROUTER_IP"
 	uci set dhcp.@dnsmasq[0].leasefile='/srv/dhcp.leases'
 	
-	cfg="$(./uci_get_anonymous_section_with_option dhcp host name septentrio)"
+	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option dhcp host name septentrio)"
 	[ -z "$cfg" ] && cfg="$(uci add dhcp host)"
 	uci set "dhcp.${cfg}.mac='${SEPTENTRIO_MAC}'"
 	uci set "dhcp.${cfg}.ip='${SEPTENTRIO_IP}'"
@@ -227,19 +223,19 @@ function uci_config() {
 	uci set "dhcp.${cfg}.name=septentrio"
 	
 	bullet_name="${HOSTNAME}-bullet"
-	cfg="$(./uci_get_anonymous_section_with_option dhcp host name "$bullet_name")"
+	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option dhcp host name "$bullet_name")"
 	[ -z "$cfg" ] && cfg="$(uci add dhcp host)"
 	uci set "dhcp.${cfg}.mac='${BULLET_MAC}'"
 	uci set "dhcp.${cfg}.ip='${BULLET_IP}'"
 	uci set "dhcp.${cfg}.name='${bullet_name}'"
 
-	./uci_ensure_value_in_list system ntp server "$NTP_SERVER"
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list system ntp server "$NTP_SERVER"
 	
-	./uci_ensure_value_in_list pkglists pkglists pkglist datacollect
-	./uci_ensure_value_in_list pkglists pkglists pkglist luci_controls
-	./uci_ensure_value_in_list pkglists pkglists pkglist lxc
-	./uci_ensure_value_in_list pkglists pkglists pkglist net_monitoring
-	./uci_ensure_value_in_list pkglists pkglists pkglist firmware_update
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist datacollect
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist luci_controls
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist lxc
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist net_monitoring
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist firmware_update
 	
 	uci set pkglists.datacollect.dynfw=1
 	uci set pkglists.luci_controls.wireguard=1
