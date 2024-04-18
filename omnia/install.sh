@@ -245,6 +245,18 @@ function uci_config() {
 	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option network wireguard_wg0 description "$WIREGUARD_REMOTE_DESCRIPTION")"
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list network "$cfg" allowed_ips "$WIREGUARD_REMOTE_ALLOWED_IPS"
 	
+	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option firewall zone name lan)"
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network wg0
+
+	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option firewall zone name wan)"
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network wan
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network wan6
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network wwan
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network wwan6
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network gsm
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network gsm6
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network wwan2
+	
 	uci set resolver.common.dynamic_domains=1
 	uci set dhcp.lan.start="$DHCP_START"
 	uci set dhcp.lan.limit="$DHCP_LIMIT"
@@ -305,6 +317,17 @@ function uci_config() {
 	fi
 }
 
+function enable_service() {
+	service="$1"
+	/etc/init.d/${service} enable
+	/etc/init.d/${service} restart
+}
+
+function enable_services() {
+	enable_service vnstat
+	enable_service mwan3
+}
+
 [ "$skip_packages" != "1" ] && config_packages
 
 [ "$skip_update" != "1" ] && update
@@ -314,5 +337,7 @@ function uci_config() {
 [ "$skip_modify" != "1" ] && modify_files
 
 [ "$skip_uci" != "1" ] && uci_config
+
+[ "$skip_services" != "1" ] && enable_services
 
 echo "It is suggested to reboot the router after the update."
