@@ -324,9 +324,22 @@ function enable_service() {
 }
 
 function enable_services() {
+	echo "-- ENABLING SERVICES --"
 	enable_service vnstat
 	enable_service mwan3
 }
+
+function schnapps_pre() {
+	echo "-- CREATING SNAPSHOT BEFORE SCRIPT RUN --"
+	schnapps create "Before install"
+}
+
+function schnapps_post() {
+	echo "-- CREATING SNAPSHOT AFTER SCRIPT RUN --"
+	schnapps create "After install"
+}
+
+[ "$skip_schnapps_pre" != "1" ] && schnapps_pre
 
 [ "$skip_packages" != "1" ] && config_packages
 
@@ -339,5 +352,7 @@ function enable_services() {
 [ "$skip_uci" != "1" ] && uci_config
 
 [ "$skip_services" != "1" ] && enable_services
+
+[ "$skip_schnapps_post" != "1" ] && schnapps_post
 
 echo "It is suggested to reboot the router after the update."
