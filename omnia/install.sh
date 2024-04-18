@@ -29,7 +29,7 @@ answer() {
   fi
 
   if [ ! "${override}" ]; then
-    if ! interactive; then
+    if [ -z "$PS1" ]; then
       echo "${question} Selected default value '${ans}' because running noninteractive" 1>&2
     elif [ "${silent}" == 'y' ]; then
       echo "${question} Selected default value '${ans}' because of silent flag" 1>&2
