@@ -45,7 +45,7 @@ function make_sure_no_local_changes() {
   [[ $# -gt 1 ]] && f_local="$2"
   if [[ -f "${f_local}" ]]; then
     if ! diff "$1" "${f_local}" 1>/dev/null 2>/dev/null; then
-      IFS= ans=$(answer "!!! File ${f_local} has local modifications!\n!!! > is local file content, < is content of file to be installed\n!!! Start of diff follows:\n$(diff --color "$1" "${f_local}" | head -n30)\n!!! Overwite [y/n]? " "n" "$overwrite_local_modified_files")
+      IFS= ans=$(answer "!!! File ${f_local} has local modifications!\n!!! > is local file content, < is content of file to be installed\n!!! Start of diff follows:\n$(diff --color "$1" "${f_local}" | head -n30)\n!!! Overwite [y/N]? " "n" "$overwrite_local_modified_files")
       if [ "$ans" = "n" ]; then
         echo "Not overwriting local modifications in file ${f_local} . Sync the files manually. The file to write was ${f} ."
         return 1
