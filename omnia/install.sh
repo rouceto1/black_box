@@ -96,15 +96,6 @@ function modify_files() {
   sed -i 's#root:x:0:0:root:/root:/bin/ash#root:x:0:0:root:/root:/bin/bash#' /etc/passwd
   
   sed -i 's#^.*DatabaseDir.*$#DatabaseDir "/srv/vnstat"#' /etc/vnstat.conf
-  
-  # Configure base opkg packages
-  [ ! -f /etc/updater/conf.d/opkg-auto.lua ] && touch /etc/updater/conf.d/opkg-auto.lua
-  for i in ${!OPKG_PACKAGES[@]}; do
-    pkg=${OPKG_PACKAGES[$i]}
-    if ! grep -q "\"${pkg}\"" /etc/updater/conf.d/opkg-auto.lua; then
-    	echo "Install(\"${pkg}\")" >> /etc/updater/conf.d/opkg-auto.lua
-  	fi
-  done
 }
 
 function uci_get_anonymous_section_with_option() {
@@ -138,6 +129,15 @@ function config_packages() {
 	uci set pkglists.firmware_update.mcu=1
 	uci set pkglists.firmware_update.nor=1
 	uci set pkglists.firmware_update.factory=1
+	
+	# Configure base opkg packages
+	[ ! -f /etc/updater/conf.d/opkg-auto.lua ] && touch /etc/updater/conf.d/opkg-auto.lua
+	for i in ${!OPKG_PACKAGES[@]}; do
+		pkg=${OPKG_PACKAGES[$i]}
+		if ! grep -q "\"${pkg}\"" /etc/updater/conf.d/opkg-auto.lua; then
+			echo "Install(\"${pkg}\")" >> /etc/updater/conf.d/opkg-auto.lua
+		fi
+	done
 	
 	local ans
 	if [ -z "$(uci changes)" ]; then
