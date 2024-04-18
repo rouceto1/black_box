@@ -20,7 +20,7 @@ answer() {
     echo "${question} Selected value '${ans}' from override" 1>&2
   fi
 
-  if [ ! "${ans}" ] && [ -n "$PS1" ] && [ "${silent}" != 'y' ]; then
+  if [ ! "${ans}" ] && [ "${silent}" != 'y' ]; then
     read -rep "$(echo -e "${question}")" ans
     echo "Selected value '${ans}' from user input" 1>&2
   fi
@@ -29,9 +29,7 @@ answer() {
   fi
 
   if [ ! "${override}" ]; then
-    if [ -z "$PS1" ]; then
-      echo "${question} Selected default value '${ans}' because running noninteractive" 1>&2
-    elif [ "${silent}" == 'y' ]; then
+    if [ "${silent}" == 'y' ]; then
       echo "${question} Selected default value '${ans}' because of silent flag" 1>&2
     fi
   fi
@@ -71,7 +69,7 @@ function install_files() {
 			local f_local="/$f"
 
 			if [[ $f = *.j2 ]]; then
-				f_local="{f_local%.j2}"
+				f_local="${f_local%.j2}"
 				f="/tmp/$(basename "${f%.j2}")"
 				if ! "${SCRIPT_DIR}"/render_jinja <"$f_orig" >"$f"; then
 					echo "Failed to render template $f_orig ." >&2
