@@ -243,19 +243,19 @@ function uci_config() {
 	uci set pkglists.firmware_update.nor=1
 	uci set pkglists.firmware_update.factory=1
 	
-	! uci -q get rainbow.wlan_1 >/dev/null && uci set network.wlan_1=led
+	! uci -q get rainbow.wlan_1 >/dev/null && uci set rainbow.wlan_1=led
 	uci set rainbow.wlan_1.status=auto
 	uci set rainbow.wlan_1.color=FF3300
-	! uci -q get rainbow.wlan_2 >/dev/null && uci set network.wlan_2=led
+	! uci -q get rainbow.wlan_2 >/dev/null && uci set rainbow.wlan_2=led
 	uci set rainbow.wlan_2.status=auto
 	uci set rainbow.wlan_2.color=FF3300
-	! uci -q get rainbow.wlan_3 >/dev/null && uci set network.wlan_3=led
+	! uci -q get rainbow.wlan_3 >/dev/null && uci set rainbow.wlan_3=led
 	uci set rainbow.wlan_3.status=auto
 	uci set rainbow.wlan_3.color=red
-	! uci -q get rainbow.wan >/dev/null && uci set network.wan=led
+	! uci -q get rainbow.wan >/dev/null && uci set rainbow.wan=led
 	uci set rainbow.wan.status=auto
 	uci set rainbow.wan.color=green
-	! uci -q get rainbow.power >/dev/null && uci set network.power=led
+	! uci -q get rainbow.power >/dev/null && uci set rainbow.power=led
 	uci set rainbow.power.status=auto
 	uci set rainbow.power.color=green
 	uci set system.led_pci1.sysfs="rgb:wlan-1"
