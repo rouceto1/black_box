@@ -56,9 +56,7 @@ function make_sure_no_local_changes() {
 }
 
 function install_files() {
-	echo "-- INSTALLING FILES --"
-
-  local dir="${SCRIPT_DIR}"/files
+  local dir="$1"
   pushd "$dir" 1>/dev/null
 	find -- * -print | while IFS= read -r f; do
 		if [[ -d "$f" ]]; then
@@ -87,6 +85,21 @@ function install_files() {
 	done
 
   popd 1>/dev/null
+}
+
+function install_pub_files() {
+	echo "-- INSTALLING FILES --"
+
+	local dir="${SCRIPT_DIR}"/files
+	install_files "$dir"
+}
+
+function install_private_files() {
+	local dir="${SCRIPT_DIR}"/private-files
+	[ ! -d "$dir" ] && return 0
+
+	echo "-- INSTALLING PRIVATE FILES --"
+	install_files "$dir"
 }
 
 function modify_files() {
@@ -347,7 +360,9 @@ function schnapps_post() {
 
 [ "$skip_update" != "1" ] && update
 
-[ "$skip_install" != "1" ] && install_files
+[ "$skip_install_pub" != "1" ] && install_pub_files
+
+[ "$skip_install_priv" != "1" ] && install_private_files
 
 [ "$skip_modify" != "1" ] && modify_files
 
