@@ -58,10 +58,16 @@ function make_sure_no_local_changes() {
 function install_files() {
   local dir="$1"
   pushd "$dir" 1>/dev/null
-	find -- * -print | while IFS= read -r f; do
+	find -- * ! -name '*.chmod' -a ! -name '*.chown' -a ! -name '*.chgrp' -print | while IFS= read -r f; do
 		if [[ -d "$f" ]]; then
 			[[ ! -d "/$f" ]] && echo "Creating dir /$f..."
-			install -C -o root -g root -m "$(stat -c '%a' "$f")" -d "/$f"
+			owner=root
+			group=root
+			mode="$(stat -c '%a' "$f")"
+			[ -f "${f}.chown" ] && owner="$(cat "${f}.chown")"
+			[ -f "${f}.chgrp" ] && group="$(cat "${f}.chgrp")"
+			[ -f "${f}.chmod" ] && mode="$(cat "${f}.chmod")"
+			install -C -o "$owner" -g "$group" -m "$mode" -d "/$f"
 		else
 			[ "$(basename "$f")" = ".gitkeep" ] && continue
 
@@ -79,7 +85,13 @@ function install_files() {
 
 			echo "Installing file ${f_local}..."
 			if make_sure_no_local_changes "$f" "$f_local" </dev/tty; then
-				install -C -o root -g root -m "$(stat -c '%a' "$f_orig")" "$f" "$f_local"
+				owner=root
+				group=root
+				mode="$(stat -c '%a' "$f_orig")"
+				[ -f "${f_orig}.chown" ] && owner="$(cat "${f_orig}.chown")"
+				[ -f "${f_orig}.chgrp" ] && group="$(cat "${f_orig}.chgrp")"
+				[ -f "${f_orig}.chmod" ] && mode="$(cat "${f_orig}.chmod")"
+				install -C -o "$owner" -g "$group" -m "$mode" "$f" "$f_local"
 			fi
 		fi
 	done
