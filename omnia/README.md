@@ -62,7 +62,7 @@ opkg install git
 opkg install git-http
 cd
 git clone https://github.com/ctu-vras/robot-connection-box.git
-# clone the repo with your private configs and symlink its local-config.bash file into ~/robot-connection-box/omnia/local-config.bash
+# clone the repo with your private configs and symlink its local-config.bash, private-files and common-private-files into ~/robot-connection-box/omnia/
 ~/robot-connection-box/omnia/install.sh  # Pay attention to whatever the script is saying
 reboot
 ```
