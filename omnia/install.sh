@@ -58,7 +58,7 @@ function make_sure_no_local_changes() {
 function install_files() {
   local dir="$1"
   pushd "$dir" 1>/dev/null
-	find -- * ! -name '*.chmod' -a ! -name '*.chown' -a ! -name '*.chgrp' -print | while IFS= read -r f; do
+	find -- * ! -name '*.chmod' -a ! -name '*.chown' -a ! -name '*.chgrp' -a ! -name '.gitkeep' -print | while IFS= read -r f; do
 		if [[ -d "$f" ]]; then
 			[[ ! -d "/$f" ]] && echo "Creating dir /$f..."
 			owner=root
@@ -69,8 +69,6 @@ function install_files() {
 			[ -f "${f}.chmod" ] && mode="$(cat "${f}.chmod")"
 			install -C -o "$owner" -g "$group" -m "$mode" -d "/$f"
 		else
-			[ "$(basename "$f")" = ".gitkeep" ] && continue
-
 			local f_orig="$f"
 			local f_local="/$f"
 
@@ -111,6 +109,14 @@ function install_private_files() {
 	[ ! -d "$dir" ] && return 0
 
 	echo "-- INSTALLING PRIVATE FILES --"
+	install_files "$dir"
+}
+
+function install_common_private_files() {
+	local dir="${SCRIPT_DIR}"/common-private-files
+	[ ! -d "$dir" ] && return 0
+
+	echo "-- INSTALLING COMMON PRIVATE FILES --"
 	install_files "$dir"
 }
 
@@ -373,6 +379,8 @@ function schnapps_post() {
 [ "$skip_update" != "1" ] && update
 
 [ "$skip_install_pub" != "1" ] && install_pub_files
+
+[ "$skip_install_common_priv" != "1" ] && install_common_private_files
 
 [ "$skip_install_priv" != "1" ] && install_private_files
 
