@@ -310,6 +310,7 @@ function uci_config() {
 	uci set "dhcp.${cfg}.name=${bullet_name}"
 
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list system ntp server "$NTP_SERVER"
+	uci set system.ntp.enable_server="1"
 	
 	! uci -q get rainbow.wlan_1 >/dev/null && uci set rainbow.wlan_1=led
 	uci set rainbow.wlan_1.status=auto
