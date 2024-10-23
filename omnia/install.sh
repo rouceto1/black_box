@@ -264,7 +264,7 @@ function uci_config() {
 	uci set network.wg0.defaultroute=0
 	uci set network.wg0.mtu=1412
 	uci set network.wg0.private_key="$WIREGUARD_LOCAL_PRIVATE_KEY"
-	"${SCRIPT_DIR}"/uci_ensure_value_in_list network wg0 addresses "$WIREGUARD_LOCAL_IP"
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list network wg0 addresses "$WIREGUARD_LOCAL_IP/24"
 	
 	! uci -q get network.@wireguard_wg0[0] >/dev/null && uci add network wireguard_wg0
 	uci set network.@wireguard_wg0[0].description="$WIREGUARD_REMOTE_DESCRIPTION"
@@ -286,6 +286,23 @@ function uci_config() {
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network gsm
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network gsm6
 	uci set "firewall.${cfg}.masq6=1"
+	
+	# Port-forward NTRIP corrections via wireguard
+	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option firewall redirect name ntrip)"
+	if [ -z "$cfg" ]; then
+		uci add firewall redirect
+    uci set "firewall.@redirect[-1].name=ntrip"
+    cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option firewall redirect name ntrip)"
+	fi
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" proto tcp
+	uci set "firewall.${cfg}.src_dport=2101"
+	uci set "firewall.${cfg}.dest_ip=${SEPTENTRIO_IP}"
+	uci set "firewall.${cfg}.dest_port=2101"
+	uci set "firewall.${cfg}.src=lan"
+	uci set "firewall.${cfg}.family=ipv4"
+	uci set "firewall.${cfg}.src_dip=${WIREGUARD_LOCAL_IP}"
+	uci set "firewall.${cfg}.dest=lan"
+	uci set "firewall.${cfg}.target=DNAT"
 	
 	uci set resolver.common.dynamic_domains=1
 	uci set dhcp.lan.start="$DHCP_START"
