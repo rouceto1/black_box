@@ -262,6 +262,7 @@ function uci_config() {
 	uci set network.wg0.delegate=0
 	uci set network.wg0.peerdns=0
 	uci set network.wg0.defaultroute=0
+	uci set network.wg0.mtu=1412
 	uci set network.wg0.private_key="$WIREGUARD_LOCAL_PRIVATE_KEY"
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list network wg0 addresses "$WIREGUARD_LOCAL_IP"
 	
