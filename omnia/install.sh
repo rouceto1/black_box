@@ -147,6 +147,7 @@ function uci_get_anonymous_section_with_option() {
 function config_packages() {
 	echo "-- CONFIGURING PACKAGE LISTS --"
 
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist 5g-kit
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist datacollect
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist luci_controls
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list pkglists pkglists pkglist lxc
@@ -231,7 +232,7 @@ function uci_config() {
 	[ -n "$cfg" ] && uci set "wireless.${cfg}.network=wwan wwan6"
 	
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list network lan ipaddr "${ROUTER_IP}/${DHCP_SUBNET_SIZE}"
-	"${SCRIPT_DIR}"/uci_ensure_value_in_list network br_lan ports usb0
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list network br_lan ports usb_septentrio
 
 	uci set network.wan.metric=100
 	uci set network.wan6.metric=100
@@ -247,12 +248,9 @@ function uci_config() {
 	uci set network.wwan6.metric=150
 	
 	! uci -q get network.gsm >/dev/null && uci set network.gsm=interface
-	uci set network.gsm.proto=modemmanager
-	uci set network.gsm.device="/sys/devices/platform/soc/soc:internal-regs/f1058000.usb/usb1/1-1"
-	uci set network.gsm.apn="${GSM_APN}"
+	uci set network.gsm.proto=dhcp
+	uci set network.gsm.device=usb_5g
 	uci set network.gsm.metric=2048
-	uci set network.gsm.iptype=ipv4v6
-	uci set network.gsm.pincode="$GSM_PIN"
 	
 	! uci -q get network.gsm6 >/dev/null && uci set network.gsm6=interface
 	uci set network.gsm6.proto=dhcpv6

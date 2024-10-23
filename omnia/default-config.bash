@@ -16,9 +16,6 @@ export DHCP_LEASE_TIME=345600
 
 export NTP_SERVER="ntp.nic.cz"
 
-export GSM_APN=internet
-export GSM_PIN=1234
-
 export WIFI_COUNTRY=CZ
 export WIFI_AP_SSID=TRADR-CTU
 export WIFI_AP_PASSWORD=you_want_to_overwrite_this
@@ -38,8 +35,6 @@ OPKG_PACKAGES+=("kmod-ebtables-ipv4")
 OPKG_PACKAGES+=("git")
 OPKG_PACKAGES+=("screen")
 OPKG_PACKAGES+=("tmux")
-OPKG_PACKAGES+=("libqmi")
-OPKG_PACKAGES+=("qmi-utils")
 OPKG_PACKAGES+=("luci-app-vnstat2")
 OPKG_PACKAGES+=("dev-detect")
 OPKG_PACKAGES+=("kmod-usb-net-cdc-ether")
