@@ -284,13 +284,15 @@ function uci_config() {
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network wwan6
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network gsm
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network gsm6
-	"${SCRIPT_DIR}"/uci_ensure_value_in_list firewall "$cfg" network wwan2
+	uci set "firewall.${cfg}.masq6=1"
 	
 	uci set resolver.common.dynamic_domains=1
 	uci set dhcp.lan.start="$DHCP_START"
 	uci set dhcp.lan.limit="$DHCP_LIMIT"
 	uci set dhcp.lan.leasetime="$DHCP_LEASE_TIME"
+	uci set dhcp.lan.ra_default=1
 	"${SCRIPT_DIR}"/uci_ensure_value_in_list dhcp lan dhcp_option "6,$ROUTER_IP"
+	"${SCRIPT_DIR}"/uci_ensure_value_in_list dhcp lan dhcp_option "42,$ROUTER_IP"
 	uci set dhcp.@dnsmasq[0].leasefile='/srv/dhcp.leases'
 	
 	cfg="$("${SCRIPT_DIR}"/uci_get_anonymous_section_with_option dhcp host name septentrio)"
@@ -328,13 +330,6 @@ function uci_config() {
 	uci set system.led_pci1.sysfs="rgb:wlan-1"
 	uci set system.led_pci2.sysfs="rgb:wlan-2"
 	uci set system.led_pci3.sysfs="rgb:wlan-3"
-	
-	# nat6 is a helper for mwan3 on IPv6
-	if ! uci -q get firewall.nat6 >/dev/null; then
-		uci set firewall.nat6=include
-		uci set firewall.nat6.path=/etc/firewall.nat6
-	  uci set firewall.nat6.reload=1
-	fi
 	
 	uci set luci.main.lang=en
 	
