@@ -1,0 +1,9 @@
+{
+    "id": "diagnostics",
+    "title": "Turris Diagnostics",
+    "url": "/diagnostics.html",
+    "icon": "/icons/snapshots.svg",
+    "description": {
+        "en": "Collect system diagnostics."
+    }
+}

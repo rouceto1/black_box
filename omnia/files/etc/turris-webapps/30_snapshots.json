@@ -1,0 +1,9 @@
+{
+    "id": "snapshots",
+    "title": "System snapshots",
+    "url": "/snapshots.html",
+    "icon": "/icons/snapshots.svg",
+    "description": {
+        "en": "BTRFS snapshots of the system."
+    }
+}

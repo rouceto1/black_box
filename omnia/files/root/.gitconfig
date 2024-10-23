@@ -1,0 +1,8 @@
+[credential]
+	helper = cache --timeout=3600
+[core]
+	excludesfile = ~/.gitignore
+	hooksPath = /etc/git-hooks
+[include]
+	path = ~/.gitconfig_local
+
