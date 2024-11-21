@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+
+import sys
+from uci import Uci
+
+config = sys.argv[1]
+section = sys.argv[2]
+option = sys.argv[3]
+value = sys.argv[4]
+
+u = Uci()
+
+l = list()
+try:
+    l = list(u.get(config, section, option))
+except:
+    pass
+
+if value not in l:
+    l.append(value)
+    u.set(config, section, option, tuple(l))
+    u.save(config)

@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+
+import sys
+from uci import Uci
+
+config = sys.argv[1]
+section_type = sys.argv[2]
+option = sys.argv[3]
+value = None if len(sys.argv) < 5 else sys.argv[4]
+
+u = Uci()
+
+for s in u.get(config):
+    if u.get(config, s) == section_type:
+        if option in u.get_all(config, s) and (value is None or u.get(config, s, option) == value):
+            print(s)
+            sys.exit(0)

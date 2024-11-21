@@ -1,0 +1,7 @@
+[ "$ACTION" = "add" ] || exit 0
+[[ "$INTERFACE" = "usb"* ]] || exit 0
+
+idVendor="$(cat "/sys${DEVPATH}/../../../idVendor")"
+[ "$idVendor" = "152a" ] || exit 0
+
+/sbin/ip link set "$INTERFACE" name "usb_septentrio"
